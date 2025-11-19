@@ -105,16 +105,15 @@ class CrawlerDownloaderMiddleware:
 class EdgeCollectorMiddleware:
 
     def process_spider_output(self, response, result, spider):
-        for item_or_request in result:
-            if isinstance(item_or_request, scrapy.Request):
+        for item in result:
+            if isinstance(item, scrapy.Request):
                 a = response.url
-                b = item_or_request.url
+                b = item.url
 
                 #stay in domain
                 parsed_b = urlparse(b)
-                if parsed_b.netloc in spider.allowed_domains and parsed_b.path.startswith("/pid"):
+                if parsed_b.netloc == spider.allowed_domains[0] and parsed_b.path.startswith(spider.allowed_path_prefix):
                     spider.graph.add_edge(a, b)
-                    # logging
-                    spider.logger.info(f"Edge collected: {a} -> {b}")
+                    spider.logger.info(f"Edge collected: {a} -> {b}") # logging
 
-            yield item_or_request
+            yield item
